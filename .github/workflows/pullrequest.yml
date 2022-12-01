@@ -1,0 +1,150 @@
+---
+name: pr // plan
+
+on:
+  workflow_call:
+    inputs:
+      terraform-dir:
+        description: "Where the terraform base directory is relative to the project root"
+        default: "terraform"
+        required: false
+        type: string
+      ansible-playbook:
+        description: "Path to the ansible playbook to run (check mode and diff)"
+        default: "ansible/main.yml"
+        required: false
+        type: string
+    outputs:
+      terraform:
+        description: "Output from the terraform plan command"
+        value: ${{ jobs.attach_plan.steps.plan.outputs.plan }}
+      ansible:
+        description: "Ansible output"
+        value: ${{ jobs.ansible_diff.steps.ansible-dryrun.outputs.output }}
+
+jobs:
+  attach_plan:
+    name: pr // attach
+    runs-on: ubuntu-latest
+
+    needs: plan
+
+    steps:
+      - name: pr // generate // checkout
+        uses: actions/checkout@v3
+
+      - name: pr // plan // validate
+        id: validate
+        uses: techjavelin/iac-action-terraform-validate
+        with:
+          terraform-dir: terraform
+
+      - name: pr // plan // generate
+        id: plan
+        uses: iac-action-terraform-prepare
+        with:
+          source-dir: ${{ inputs.terraform-dir }}
+
+      - name: pr // plan // attach
+        uses: actions/github-script@v6
+        env:
+          PLAN: "terraform\n${{ steps.plan.outputs.plan }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // 1. Retrieve existing bot comments for the PR
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            })
+            const botComment = comments.find(comment => {
+              return comment.user.type === 'Bot' && comment.body.includes('Terraform Format and Style')
+            })
+
+            // 2. Prepare format of the comment
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.validate.outputs.format }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.validate.outputs.init }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outputs.validate }}\`
+            <details><summary>Validation Output</summary>
+
+            \`\`\`\n
+            ${{ steps.plan.outputs.details }}
+            \`\`\`
+
+            </details>
+
+            #### Terraform Plan 📖\`${{ steps.plan.outputs.result }}\`
+
+            <details><summary>Show Plan</summary>
+
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
+
+            </details>
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
+
+            // 3. If we have a comment, update it, otherwise create a new one
+
+            console.log(output);
+
+            if (botComment) {
+              github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: output
+              })
+            } else {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: output
+              })
+            }
+
+  ansible_diff:
+    name: pr // ansible
+    runs-on: ubuntu-latest
+
+    env:
+      ANSIBLE_TF_DIR: ${{ inputs.terraform-dir }}
+
+      # If you use Terraform Cloud or Workspaces, uncomment this to set the workspace name for
+      # the dynamic inventory scripts
+      # ANSIBLE_TF_WS_NAME:
+
+    steps:
+      - name: pr // ansible // checkout
+        uses: actions/checkout@v3
+
+      - name: pr // ansible // setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: pr // ansible // terraform-setup
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+
+      - name: pr // ansible // terraform-init
+        id: terraform-init
+        run: terraform init
+        working-directory: ${{ inputs.terraform-dir }}
+
+      - name: pr // ansible // dryrun
+        id: ansible-dryrun
+        uses: techjavelin/iac-action-ansible@v1
+        with:
+          playbook: ${{ inputs.ansible-playbook }}
+          options: |
+            --inventory ansible/inventory/terraform-inventory/teraform.py
+            --inventory ansible/inventory/static
+          check_mode: "true"
+          diff: "true"
+          use_pipenv: "true"
+          no_color: "true"

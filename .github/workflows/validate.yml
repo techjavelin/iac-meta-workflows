@@ -1,0 +1,57 @@
+---
+name: validation
+
+on:
+  workflow_call:
+    inputs:
+      terraform-dir:
+        description: "Where the terraform base directory is relative to the project root"
+        default: "terraform"
+        required: false
+        type: string
+      ansible-dir:
+        description: "Where the ansible base directory is relative to the project root"
+        default: "ansible"
+        required: false
+        type: string
+
+jobs:
+  terraform-validate:
+    name: validation // terraform
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: terraform-validate // checkout
+        uses: actions/checkout@v3
+
+      - name: terraform-validate // validate
+        uses: techjavelin/iac-action-terraform-validate@v1
+        with:
+          terraform-dir: ${{ inputs.teraform-dir }}
+
+  terraform-lint:
+    name: validation // terraform-lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: terraform-validate // checkout
+        uses: actions/checkout@v3
+
+      - name: terraform-validate // lint
+        uses: techjavelin/iac-action-terraform-lint@v1-dev
+        with:
+          terraform-dir: ${{ inputs.teraform-dir }}
+
+  ansible-validate:
+    name: validation // ansible
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ansible-validate // checkout
+        uses: actions/checkout@v3
+
+      - name: ansible-validate // lint
+        uses: techjavelin/ansible-lint-action@upgraded-ansible-lint
+        with:
+          path: ${{ inputs.ansible-dir }}
+        continue-on-error: true
