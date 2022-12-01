@@ -40,7 +40,7 @@ jobs:
       - name: terraform-validate // lint
         uses: techjavelin/iac-action-terraform-lint@v1-dev
         with:
-          terraform-dir: ${{ inputs.teraform-dir }}
+          terraform-dir: ${{ inputs.terraform-dir }}
 
   ansible-validate:
     name: validation // ansible
