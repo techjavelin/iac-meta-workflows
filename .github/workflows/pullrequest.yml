@@ -37,7 +37,7 @@ jobs:
         id: validate
         uses: techjavelin/iac-action-terraform-validate
         with:
-          terraform-dir: terraform
+          terraform-dir: ${{ inputs.terraform-dir }}
 
       - name: pr // plan // generate
         id: plan

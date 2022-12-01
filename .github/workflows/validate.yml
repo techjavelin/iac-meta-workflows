@@ -27,7 +27,7 @@ jobs:
       - name: terraform-validate // validate
         uses: techjavelin/iac-action-terraform-validate@v1
         with:
-          terraform-dir: ${{ inputs.teraform-dir }}
+          terraform-dir: ${{ inputs.terraform-dir }}
 
   terraform-lint:
     name: validation // terraform-lint
