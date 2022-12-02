@@ -14,6 +14,19 @@ on:
         default: "ansible/main.yml"
         required: false
         type: string
+      backend_cloud_credential_hostname:
+        description: "The hostname of the cloud backend provider"
+        required: false
+        default: "app.terraform.io"
+        type: string
+      backend_cloud_credential_token:
+        description: "If you're using terraform cloud as a backend, provide your credential here"
+        required: false
+        type: string
+      workspace_name:
+        description: "If you're using workspaces, provide the workspace name here"
+        required: false
+        type: string
     outputs:
       terraform:
         description: "Output from the terraform plan command"
@@ -38,12 +51,18 @@ jobs:
         uses: techjavelin/iac-action-terraform-validate
         with:
           terraform-dir: ${{ inputs.terraform-dir }}
+          backend_cloud_credential_hostname: ${{ inputs.backend_cloud_credential_hostname }}
+          backend_cloud_credential_token: ${{ inputs.backend_cloud_credential_token }}
+          workspace_name: ${{ inputs.workspace_name }}
 
       - name: pr // plan // generate
         id: plan
         uses: iac-action-terraform-prepare
         with:
-          source-dir: ${{ inputs.terraform-dir }}
+          terraform-dir: ${{ inputs.terraform-dir }}
+          backend_cloud_credential_hostname: ${{ inputs.backend_cloud_credential_hostname }}
+          backend_cloud_credential_token: ${{ inputs.backend_cloud_credential_token }}
+          workspace_name: ${{ inputs.workspace_name }}
 
       - name: pr // plan // attach
         uses: actions/github-script@v6
@@ -112,6 +131,7 @@ jobs:
 
     env:
       ANSIBLE_TF_DIR: ${{ inputs.terraform-dir }}
+      ANSIBLE_TF_WS_NAME: ${{ inputs.workspace_name }}
 
       # If you use Terraform Cloud or Workspaces, uncomment this to set the workspace name for
       # the dynamic inventory scripts
@@ -129,7 +149,9 @@ jobs:
       - name: pr // ansible // terraform-setup
         uses: hashicorp/setup-terraform@v2
         with:
-          terraform_wrapper: false
+          terraform-dir: ${{ inputs.terraform-dir }}
+          backend_cloud_credential_hostname: ${{ inputs.backend_cloud_credential_hostname }}
+          backend_cloud_credential_token: ${{ inputs.backend_cloud_credential_token }}
 
       - name: pr // ansible // terraform-init
         id: terraform-init

@@ -15,6 +15,7 @@ on:
         required: false
         type: string
 
+
 jobs:
   terraform-validate:
     name: validation // terraform
@@ -28,6 +29,8 @@ jobs:
         uses: techjavelin/iac-action-terraform-validate@v1
         with:
           terraform-dir: ${{ inputs.terraform-dir }}
+          terraform_cloud_credential_hostname: ${{ input.terraform-backend-credential-hostname }}
+          terraform_cloud_credential_token: ${{ inputs.terraform-backend-credential-token }}
 
   terraform-lint:
     name: validation // terraform-lint
@@ -41,6 +44,7 @@ jobs:
         uses: techjavelin/iac-action-terraform-lint@v1-dev
         with:
           terraform-dir: ${{ inputs.terraform-dir }}
+          backend_cloud_credential_hostname: 
 
   ansible-validate:
     name: validation // ansible
