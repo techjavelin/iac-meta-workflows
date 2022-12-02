@@ -16,3 +16,11 @@ jobs:
     steps:
       - name: create-release
         uses: softprops/action-gh-release@v1
+
+      - name: bump-v1-tag
+        uses: kimgault/github-tag-action@v1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: main
+          BUMP: v1
+
