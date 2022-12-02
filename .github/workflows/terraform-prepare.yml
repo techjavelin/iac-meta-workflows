@@ -22,6 +22,10 @@ on:
         description: "If you're using workspaces, provide the workspace name here"
         required: false
         type: string
+      env_file_cache_key:
+        description: "If you need to set environment variables (like for aws credentials and whatnot) cache them and provide the cache key"
+        required: false
+        type: string
     outputs:
       terraform:
         description: "Output from the terraform plan command"
@@ -40,6 +44,19 @@ jobs:
     steps:
       - name: pr // generate // checkout
         uses: actions/checkout@v3
+
+      - name: pr // plan // restore-env
+        if: ${{ env_file_cache_key != "" }}
+        uses: actions/cache@v3
+        with:
+          key: ${{ inputs.env_file_cache_key }}
+          path: .env
+    
+      - name: pr // plan // restore-env
+        if: ${{ env_file_cache_key != "" }}
+        uses: tegbrb/setup-environment@main
+        with:
+          environment-config-file: ".env"
 
       - name: pr // plan // validate
         id: validate
