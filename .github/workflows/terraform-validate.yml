@@ -34,7 +34,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: terraform-validate // lint
-        uses: techjavelin/iac-action-terraform-lint@v1-dev
+        uses: techjavelin/iac-action-terraform-lint@v1
         with:
           terraform-dir: ${{ inputs.terraform-dir }}
 
