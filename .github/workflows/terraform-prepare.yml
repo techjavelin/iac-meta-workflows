@@ -54,13 +54,13 @@ jobs:
     
       - name: pr // plan // restore-env
         if: ${{ env_file_cache_key != "" }}
-        uses: tegbrb/setup-environment@main
+        uses: tegbrb/setup-environment@v1
         with:
           environment-config-file: ".env"
 
       - name: pr // plan // validate
         id: validate
-        uses: techjavelin/iac-action-terraform-validate
+        uses: techjavelin/iac-action-terraform-validate@v1
         with:
           terraform-dir: ${{ inputs.terraform-dir }}
           backend_cloud_credential_hostname: ${{ inputs.backend_cloud_credential_hostname }}
@@ -69,7 +69,7 @@ jobs:
 
       - name: pr // plan // generate
         id: plan
-        uses: iac-action-terraform-prepare
+        uses: techjavelin/iac-action-terraform-prepare@v1
         with:
           terraform-dir: ${{ inputs.terraform-dir }}
           backend_cloud_credential_hostname: ${{ inputs.backend_cloud_credential_hostname }}
