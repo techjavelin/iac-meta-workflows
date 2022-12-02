@@ -1,0 +1,26 @@
+---
+name: validation // ansible
+
+on:
+  workflow_call:
+    inputs:
+      ansible-dir:
+        description: "Where the ansible base directory is relative to the project root"
+        default: "ansible"
+        required: false
+        type: string
+
+jobs:
+  ansible-validate:
+      name: validation // ansible
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: ansible-validate // checkout
+          uses: actions/checkout@v3
+
+        - name: ansible-validate // lint
+          uses: techjavelin/ansible-lint-action@upgraded-ansible-lint
+          with:
+            path: ${{ inputs.ansible-dir }}
+          continue-on-error: true
