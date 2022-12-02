@@ -1,0 +1,39 @@
+name: iac-meta-workflows // test
+
+on:
+  push:
+    paths:
+      - ".github/workflows/*.yml"
+
+jobs:
+  test-ansible-prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ansible-prepare // checkout
+        uses: actions/checkout@v3
+
+      # TODO
+
+  test-ansible-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ansible-prepare // checkout
+        uses: actions/checkout@v3
+
+      # TODO
+
+  test-terraform-prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ansible-prepare // checkout
+        uses: actions/checkout@v3
+
+      # TODO
+
+  test-terraform-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ansible-prepare // checkout
+        uses: actions/checkout@v3
+
+      # TODO

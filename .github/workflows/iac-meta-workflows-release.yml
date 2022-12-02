@@ -1,0 +1,18 @@
+name: iac-meta-workflows // release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: create-release
+        uses: softprops/action-gh-release@v1

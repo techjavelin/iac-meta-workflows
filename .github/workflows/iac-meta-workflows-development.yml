@@ -1,0 +1,23 @@
+name: iac-meta-workflows // development
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  bump-dev-tag:
+    name: development // bump-dev-tag
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: bump-dev-tag
+        uses: kimgault/github-tag-action@v1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: dev
+          BUMP: dev-latest
+      
