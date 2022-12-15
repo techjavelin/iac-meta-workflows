@@ -40,7 +40,7 @@ jobs:
     name: pr // attach
     runs-on: ubuntu-latest
 
-    needs: plan
+    # needs: plan
 
     steps:
       - name: pr // generate // checkout
