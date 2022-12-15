@@ -55,7 +55,7 @@ jobs:
     
       - name: pr // plan // restore-env
         if: inputs.env_file_cache_key != ''
-        uses: tegbrb/setup-environment@v1
+        uses: thgbrb/setup-environment@v1
         with:
           environment-config-file: ".env"
 
