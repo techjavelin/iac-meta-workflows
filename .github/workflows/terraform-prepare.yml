@@ -65,7 +65,7 @@ jobs:
         with:
           terraform-dir: ${{ inputs.terraform-dir }}
           backend_cloud_credential_hostname: ${{ inputs.backend_cloud_credential_hostname }}
-          backend_cloud_credential_token: ${{ inputs.backend_cloud_credential_token }}
+          backend_cloud_credential_token: ${{ secrets.backend_cloud_credential_token }}
           workspace_name: ${{ inputs.workspace_name }}
 
       - name: pr // plan // generate
