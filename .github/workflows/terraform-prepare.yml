@@ -26,7 +26,6 @@ on:
         description: "If you need to set environment variables (like for aws credentials and whatnot) cache them and provide the cache key"
         required: false
         type: string
-        default: ""
     outputs:
       terraform:
         description: "Output from the terraform plan command"
