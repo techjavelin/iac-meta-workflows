@@ -34,6 +34,9 @@ on:
       ansible:
         description: "Ansible output"
         value: ${{ jobs.ansible_diff.steps.ansible-dryrun.outputs.output }}
+      artifact-name:  
+        description: "The name of the uploaded artifact"
+        value: ${{ jobs.attach_plan.steps.plan.outputs.artifact }}
 
 jobs:
   attach_plan:
