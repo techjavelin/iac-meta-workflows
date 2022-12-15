@@ -1,0 +1,61 @@
+name: security // airiam-diff
+
+on:
+  workflow_call:
+    inputs:
+      terraform-dir:
+        description: "Where the terraform base directory is relative to the project root"
+        default: "terraform"
+        required: false
+        type: string
+      backend_cloud_credential_hostname:
+        description: "The hostname of the cloud backend provider"
+        required: false
+        default: "app.terraform.io"
+        type: string
+      backend_cloud_credential_token:
+        description: "If you're using terraform cloud as a backend, provide your credential here"
+        required: false
+        type: string
+      workspace_name:
+        description: "If you're using workspaces, provide the workspace name here"
+        required: false
+        type: string
+      env_file_cache_key:
+        description: "If you need to set environment variables (like for aws credentials and whatnot) cache them and provide the cache key"
+        required: false
+        type: string
+
+jobs:
+  airiam-pre:
+    name: airiam-diff // collect-current
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: collect-current // setup-python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+
+      - name: collect-current // restore-env
+        if: ${{ env_file_cache_key != "" }}
+        uses: tegbrb/setup-environment@v1
+        with:
+          environment-config-file: ".env"
+
+      - name: collect-current // generate-terraform
+        run: |
+          pip3 install -U pip setuptools 
+          pip3 install airiam
+          airiam terraform --no-cache --without-import -l 30 -d pre-$GITHUB_SHA)
+          tar -czvf pre-$GITHUB_SHA.tgz pre-$GITHUB_SHA
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: collect-current // upload-expected
+        uses: actions/upload-artifact@v2
+        with:
+          name: pre-${{github.sha}}
+          path: pre-${{github.sha}}.tgz
+      
